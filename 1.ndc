@@ -1,0 +1,24 @@
+let input = read_file("input/2025/1.txt").trim.lines;
+
+let idx = 50;
+let p1, p2 = 0, 0;
+
+for line in input {
+	let sign = if line.starts_with("L") { -1 } else { 1 };
+	let num = line.nums.first;
+
+	for i in 0..num {
+		idx += sign;
+		idx %%= 100;
+		if idx == 0 {
+			p2 += 1;
+		}
+	}
+
+	if idx == 0 {
+		p1 += 1;
+	}
+}
+
+assert_eq((p1, p2), (964, 5872));
+print(p1, p2);

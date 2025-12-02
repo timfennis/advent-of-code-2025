@@ -1,0 +1,23 @@
+let input = read_file("input/2025/2.txt").trim;
+let p1, p2 = 0, 0;
+
+for range in input.split(",") {
+	let lo, hi = range.trim.split("-").map(int);
+
+	for n in lo..=hi {
+		let s = string(n);
+		for d in (2..=s.len), if s.len % d == 0 {
+			let chunk = s.chunks(s.len \ d);
+			let good = chunk.pairwise.all(fn(a) => a[0] == a[1]);
+
+			if good {
+				p1 += if d == 2 { n } else { 0 };
+				p2 += n;
+				break;
+			}
+		}
+	}
+}
+
+print(p1, p2);
+

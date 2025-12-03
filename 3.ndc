@@ -1,0 +1,24 @@
+let input = read_file("input/2025/3.txt").trim;
+
+pure fn solve(bank, rem) {
+	let best = -Inf;
+
+	if rem > 0 {
+		for idx in (0..(bank.len - rem)) {
+			best max= int(bank[idx] <> solve(bank[(idx + 1)..], rem - 1))
+		}
+	} else {
+		return bank.max;
+	}
+
+	return best;
+}
+
+let p1, p2 = 0, 0;
+for line in input.lines {
+	let nn = line.map(int);
+	p1 += solve(nn, 1);
+	p2 += solve(nn, 11);
+}
+
+print(p1, p2);

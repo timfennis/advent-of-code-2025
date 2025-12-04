@@ -1,0 +1,54 @@
+let input = read_file("input/2025/4.txt");
+// let input = "..@@.@@@@.
+// @@@.@.@.@@
+// @@@@@.@.@@
+// @.@@@@..@.
+// @@.@@@@.@@
+// .@@@@@@@.@
+// .@.@.@.@@@
+// @.@@@.@@@@
+// .@@@@@@@@.
+// @.@.@@@.@.";
+
+let grid = input.lines;
+let height = grid.len;
+let width = grid[0].len;
+let nb8 = [(x, y) for x in -1..2, y in -1..2, if (x != 0 or y != 0)];
+
+let p1, p2 = 0, 0;
+
+let obj = %{ (r, c) for r in 0..height, c in 0..width, if grid[r][c] == "@" };
+
+fn accessible_rolls(obj) {
+	let ret = %{};
+	for (r, c) in obj.keys {
+		let cnt = 0;
+		for nb in nb8 {
+			if (r, c) + nb in obj {
+				cnt += 1;
+			}
+		}
+
+		if cnt < 4 {
+			ret.insert((r, c));
+		}
+
+	}
+
+	return ret;
+}
+
+print("Part 1", accessible_rolls(obj).len);
+
+let orig = obj.len;
+while true {
+	let rem = accessible_rolls(obj);
+
+	if rem.len == 0 {
+		break;
+	}
+
+	obj -= rem;
+}
+
+print("Part 2", orig - obj.len);

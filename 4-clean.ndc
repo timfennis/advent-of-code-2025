@@ -1,0 +1,18 @@
+    let grid = read_file("input/2025/4.txt").lines;
+    let height, width = grid.len, grid[0].len;
+    let nb8 = [(x, y) for x in -1..2, y in -1..2, if (x != 0 or y != 0)];
+    let objs = %{ (r, c) for r in 0..height, c in 0..width, if grid[r][c] != "." };
+
+    fn accessible_rolls(objs) {
+        %{roll for roll in objs.keys, if nb8.count(fn(nb) => roll + nb in objs) < 4}
+    }
+
+    print("Part 1", accessible_rolls(objs).len);
+
+    let p1, p2 = 0, 0;
+    let orig, rem = objs.len, ();
+    while { rem = accessible_rolls(objs); rem.len != 0 } {
+        objs -= rem;
+    }
+
+    print("Part 2", orig - objs.len);

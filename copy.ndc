@@ -1,0 +1,5 @@
+let grid = input.lines;
+let height, width = grid.len, grid[0].len;
+let nb8 = [(x, y) for x in -1..2, y in -1..2, if (x != 0 or y != 0)];
+let nb4 = [(x, y) for x in -1..2, y in -1..2, if ((x == 0) ~ (y == 0))];
+let obj = %{ (r, c) for r in 0..height, c in 0..width, if grid[r][c] != "." };

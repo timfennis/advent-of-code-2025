@@ -1,0 +1,87 @@
+let ranges, ids = read_file("input/2025/5.txt").paragraphs;
+
+let rr = [];
+for range in ranges.lines {
+	let lo, hi = range.split("-").map(int);
+	rr.push((lo , hi));
+}
+
+
+// fn merge_ranges(ranges) {
+// 	let ranges = ranges.sorted.reversed;
+
+// 	let out = [];
+
+// 	for idx1 in 0..ranges.len {
+// 		let merged = false;
+// 		for idx2 in (idx1 + 1)..ranges.len {
+// 			let a_lo, a_hi = ranges[idx1];
+// 			let b_lo, b_hi = ranges[idx2];
+
+// 			if a_lo <= b_hi and b_lo <= a_hi {
+// 				out.push((a_lo.min(b_lo), a_hi.max(b_hi)));
+// 				merged = true;
+// 				break;
+// 			}
+// 		}
+
+// 		if not merged { 
+// 			out.push(ranges[idx1]);
+// 		}
+// 	}
+
+// 	return out;
+// }
+
+fn find_overlap(ranges) {
+	for idx1 in 0..ranges.len {
+		for idx2 in (idx1 + 1)..ranges.len {
+			let a_lo, a_hi = ranges[idx1];
+			let b_lo, b_hi = ranges[idx2];
+
+			if a_lo <= b_hi and b_lo <= a_hi {
+				return Some((idx1, idx2, (a_lo.min(b_lo), a_hi.max(b_hi))));
+			}
+		}
+	}
+
+	return None;
+}
+
+fn merge_ranges(ranges) {
+	let rc = deepcopy(ranges);
+	while true {
+		let overlap = find_overlap(rc);
+		if overlap.is_none() {
+			return rc;
+		}
+		let a, b, c = overlap.unwrap();
+		rc.remove(b.max(a));
+		rc.remove(b.min(a));
+		rc.push(c);
+	}
+}
+
+
+// let out = merge_ranges(rr);
+// rr = out;
+let rr = merge_ranges(rr);
+
+let p1 = 0;
+for id in ids.lines.map(int) {
+	for (lo, hi) in rr {
+		if id >= lo and id <= hi {
+			p1 +=1 ;
+			break;
+		}
+	}
+}
+
+
+print("Part 1", p1);
+
+let p2 = [(hi - lo + 1) for (lo, hi) in rr].sum;
+
+assert_ne(p2, 435177989437182);
+assert_ne(p2, 419118119119504);
+print("Part 2", p2);

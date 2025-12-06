@@ -1,5 +1,39 @@
+/// Grid puzzles
+
 let grid = input.lines;
 let height, width = grid.len, grid[0].len;
 let nb8 = [(x, y) for x in -1..2, y in -1..2, if (x != 0 or y != 0)];
 let nb4 = [(x, y) for x in -1..2, y in -1..2, if ((x == 0) ~ (y == 0))];
 let obj = %{ (r, c) for r in 0..height, c in 0..width, if grid[r][c] != "." };
+
+
+/// Range puzzles
+
+fn find_overlap(ranges) {
+	for idx1 in 0..ranges.len {
+		for idx2 in (idx1 + 1)..ranges.len {
+			let a_lo, a_hi = ranges[idx1];
+			let b_lo, b_hi = ranges[idx2];
+
+			if a_lo <= b_hi and b_lo <= a_hi {
+				return Some((idx1, idx2, (a_lo.min(b_lo), a_hi.max(b_hi))));
+			}
+		}
+	}
+
+	return None;
+}
+
+fn merge_ranges(ranges) {
+	let rc = deepcopy(ranges);
+	while true {
+		let overlap = find_overlap(rc);
+		if overlap.is_none() {
+			return rc;
+		}
+		let a, b, c = overlap.unwrap();
+		rc.remove(b.max(a));
+		rc.remove(b.min(a));
+		rc.push(c);
+	}
+}

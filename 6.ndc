@@ -1,0 +1,54 @@
+let input = read_file("input/2025/6.txt");
+let input = input.lines;
+let operations = input.pop().split(" ").map(trim).filter(fn(x) => x != "");
+let numbers = input.map(nums).transposed;
+
+let p1 = 0;
+for (op, ns) in operations.zip(numbers) {
+	if op == "*" {
+		p1 += ns.product;
+	} else if op == "+" {
+		p1 += ns.sum;
+	} else {
+		assert(false);
+	}
+}
+
+print(p1);
+
+
+let current_op = 0;
+let p2 = 0;
+
+let cc = [];
+for line in input.transposed {
+	// print(line);
+	let line = line.join("");
+	if line.trim == "" {
+		p2 += if operations[current_op] == "+" {
+			cc.sum
+		} else {
+			cc.product
+		};
+		current_op += 1;
+
+		cc = [];
+		continue;
+	}
+
+	cc.push(line.trim.int);
+
+
+}
+
+
+p2 += if operations[current_op] == "+" {
+	// print("summing", cc, current_op);
+	cc.sum
+} else {
+	// print("mulling", cc, current_op);
+	cc.product
+};
+
+print(p2);
+

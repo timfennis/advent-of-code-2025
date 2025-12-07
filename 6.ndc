@@ -16,7 +16,6 @@ for (op, ns) in operations.zip(numbers) {
 
 print(p1);
 
-
 let current_op = 0;
 let p2 = 0;
 
@@ -37,8 +36,6 @@ for line in input.transposed {
 	}
 
 	cc.push(line.trim.int);
-
-
 }
 
 

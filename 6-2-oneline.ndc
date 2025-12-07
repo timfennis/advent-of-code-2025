@@ -1,0 +1,9 @@
+read_file("input/2025/6.txt")
+  .lines
+  .transposed
+  .map(fn(x) => x.join(""))
+  .unlines
+  .split("     ")
+  .map(fn(x) => (if "*" in x { product } else { sum })(x.nums))
+  .sum
+  .print;

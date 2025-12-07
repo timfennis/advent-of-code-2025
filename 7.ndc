@@ -1,0 +1,27 @@
+let input = read_file("input/2025/7.txt");
+
+let grid = input.lines;
+let height, width = grid.len, grid[0].len;
+let start = [ (r, c) for r in 0..height, c in 0..width, if grid[r][c] == "S" ].first;
+let obj = %{ (r, c) for r in 0..height, c in 0..width, if grid[r][c] == "^" };
+
+let p1 = 0;
+
+pure fn solve(pos) {
+	if pos[0] > height {
+		return 1;
+	}
+
+	let down = pos + (1, 0);
+
+	return if down in obj {
+		// split
+		p1 += 1;
+		solve(down + (0, 1)) + solve(down + (0, -1))
+	} else {
+		solve(down)
+	}
+}
+
+let p2 = solve(start);
+print(p1, p2);

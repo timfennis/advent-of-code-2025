@@ -1,0 +1,33 @@
+let input = read_file("input/2025/8.txt");
+let boxes = %{ box: id for (id, box) in input.lines.map(nums).enumerate };
+
+let dist = [ (a.zip(b).map(fn(x) => abs_diff(x[0], x[1])^2).sum, a, b) for (a, b) in boxes.keys().combinations(2)].sorted;
+
+let idx = 0;
+let p1, p2 = 0, 0;
+
+for (_, a, b) in dist {
+	idx += 1;
+	
+	let a_id, b_id = boxes[a], boxes[b];
+
+	if boxes[a] != b_id {
+		for box in [box for (box, id) in boxes, if id == b_id] {
+			boxes[box] = a_id;
+		}
+	}
+
+	if idx == 1000 {
+		p1 = boxes.values.frequencies.values.sorted[-3..].product;
+	}
+
+	if boxes.values.all(fn(x) => x == a_id) {
+		p2 = a[0] * b[0];
+		break;
+	}
+}
+
+assert_eq(p1, 54180);
+assert_eq(p2, 25325968);
+
+print("Part 1:", p1, "\nPart 2:", p2);

@@ -1,31 +1,30 @@
 let input = read_file("input/2025/8.txt");
 let boxes = %{ box: id for (id, box) in input.lines.map(nums).enumerate };
 
-let dist = [ (a.zip(b).map(fn(x) => abs_diff(x[0], x[1])^2).sum, a, b) for (a, b) in boxes.keys().combinations(2)].sorted;
+let dist = [ (a.zip(b).map(fn(x) => abs_diff(x[0], x[1])^2).sum, a, b) for (a, b) in boxes.keys().combinations(2)];
+dist.sort;
 
-let idx = 0;
+let clique_count = boxes.len();
+let idx = -1;
 let p1, p2 = 0, 0;
 
-for (_, a, b) in dist {
+while clique_count > 1 {
 	idx += 1;
-	
-	let a_id, b_id = boxes[a], boxes[b];
+	let a_id, b_id = boxes[dist[idx][1]], boxes[dist[idx][2]];
 
-	if boxes[a] != b_id {
+	if a_id != b_id {
 		for box in [box for (box, id) in boxes, if id == b_id] {
 			boxes[box] = a_id;
 		}
+		clique_count -= 1;
 	}
 
 	if idx == 1000 {
 		p1 = boxes.values.frequencies.values.sorted[-3..].product;
 	}
-
-	if boxes.values.all(fn(x) => x == a_id) {
-		p2 = a[0] * b[0];
-		break;
-	}
 }
+
+p2 = dist[idx][1][0] * dist[idx][2][0];
 
 assert_eq(p1, 54180);
 assert_eq(p2, 25325968);

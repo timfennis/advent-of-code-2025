@@ -1,0 +1,131 @@
+let input = read_file("input/2025/8.txt");
+// let input = "162,817,812
+// 57,618,57
+// 906,360,560
+// 592,479,940
+// 352,342,300
+// 466,668,158
+// 542,29,236
+// 431,825,988
+// 739,650,466
+// 52,470,668
+// 216,146,977
+// 819,987,18
+// 117,168,530
+// 805,96,715
+// 346,949,466
+// 970,615,88
+// 941,993,340
+// 862,61,35
+// 984,92,344
+// 425,690,689";
+let boxes = %{ box for box in input.lines.map(nums) };
+let seen = %{};
+
+let lookup = %{};
+let circuits = %{};
+
+let p1, p2 = 0, 0;
+
+
+let pairs = [];
+for a in boxes.keys, b in boxes.keys, if a != b and (a, b) not in seen and (b, a) not in seen {
+	let dist = a.zip(b).map(fn(x) => abs_diff(x[0], x[1])^2).sum;
+	pairs.push((dist, a, b));
+	seen.insert((a, b));
+}
+
+pairs.sort();
+// for pair in pairs { print(pair); }
+// assert(false);
+
+let graph = %{};
+
+for idx in 0..1000 {
+	let _dist, a, b = pairs[idx];
+
+	if a not in graph {
+		graph[a] = %{b};
+	} else {
+		graph[a].insert(b);
+	}
+
+	if b not in graph {
+		graph[b] = %{a};
+	} else {
+		graph[b].insert(a);
+	}
+}
+
+let out = %{};
+for start in graph.keys {
+	let queue = Deque();
+	let seen = %{};
+	let size = 1;
+
+	queue.push_back(start);
+	while not queue.is_empty() {
+		let cur = queue.pop_front();
+
+		for next in graph[cur].keys, if next not in seen {
+			seen.insert(next);
+			queue.push_back(next);
+		}
+	}
+
+	out[seen] = seen.len;
+}
+
+out.values.sorted[-3..].product.print;
+
+// for idx in 0..1000 {
+
+// 	let _dist, a, b = pairs[idx];
+
+// 	if a in lookup and not b in lookup { 
+// 		print("adding to a");
+// 		circuits[lookup[a]].insert(b);
+// 		lookup[b] = lookup[a];
+// 	} else if b in lookup and not a in lookup { 
+// 		print("adding to b");
+// 		circuits[lookup[b]].insert(a);
+// 		lookup[a] = lookup[b];
+// 	} else if a in lookup and b in lookup {
+// 		if lookup[a] != lookup[b] { 
+
+// 			// print("merging a and b");
+// 			// print(lookup[a]);
+// 			// print(lookup[b]);
+// 			// print(circuits[lookup[a]]);
+// 			// print(circuits[lookup[b]]);
+// 			circuits[lookup[a]] = circuits[lookup[a]] | circuits[lookup[b]];	
+			
+// 			// print(circuits[lookup[b]]);
+// 			// assert(false);
+// 			for old in circuits[lookup[b]].keys {
+// 				// print("OLD", old);
+// 				lookup[old] = lookup[a];
+// 			}
+
+// 			circuits.remove(lookup[b]);
+			
+// 			lookup[b] = lookup[a];
+// 		} else {
+// 			// print(a, b);
+// 			// print(lookup[a]);
+// 			// print( lookup[b]); 
+// 			// print(circuits[lookup[a]]);
+// 			// assert(false);
+// 		}
+
+// 	} else { 
+// 		print("creating new", a, b);
+// 		circuits[a] = %{a, b};
+// 		lookup[a] = a;
+// 		lookup[b] = a; 
+// 	}
+// }
+
+// let sizes = circuits.values.map(len).sorted;
+// print(sizes[-3..]);
+

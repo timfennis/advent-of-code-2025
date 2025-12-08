@@ -37,3 +37,30 @@ fn merge_ranges(ranges) {
 		rc.push(c);
 	}
 }
+
+
+/// BFS
+
+let queue = Deque();
+let seen = %{};
+
+queue.push_back(start);
+
+fn adjacencies() {
+
+}
+
+while not queue.is_empty() {
+	let cur = queue.pop_front();
+
+	if cur == end {
+		break;
+	}
+
+	for next in adjacencies(cur) {
+		if next not in seen {
+			seen.insert(next);
+			queue.push_back(next);
+		}
+	}
+}

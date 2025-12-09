@@ -1,0 +1,136 @@
+let input = read_file("input/2025/9.txt");
+// let input = "7,1
+// 11,1
+// 11,7
+// 9,7
+// 9,5
+// 2,5
+// 2,3
+// 7,3";
+
+let coords = input.lines.map(nums);
+let lookup = coords.set;
+let lookup2 = %{ a: b for (b, a) in coords.enumerate };
+
+fn area(x, y) {
+	let (x1, y1) = x;
+	let (x2, y2) = y;
+
+	(abs_diff(x1, x2) + 1) * (abs_diff(y1, y2) + 1)
+}
+
+fn left_of(a, b) {
+	a[0] < b[0]
+}
+
+fn right_of(a, b) {
+	a[0] > b[0]
+}
+
+fn north_of(a, b) {
+	a[1] < b[1]
+}
+
+fn south_of(a, b) {
+	a[1] > b[1]
+}
+
+fn is_contained_in(a, r1, r2) {
+	let x1, x2 = min(r1[0], r2[0]), max(r1[0], r2[0]);
+	let y1, y2 = min(r1[1], r2[1]), max(r1[1], r2[1]);
+
+	x1 += 1;
+	x2 -= 1;
+	y1 += 1;
+	y2 -= 1;
+
+	// print(a, "->", x1, x2, y1, y2);
+
+	a[0] in (x1..=x2) and a[1] in (y1..=y2)
+}
+
+fn is_contained2(a, r1, r2) {
+	let x1, x2 = min(r1[0], r2[0]), max(r1[0], r2[0]);
+	let y1, y2 = min(r1[1], r2[1]), max(r1[1], r2[1]);
+
+	a[0] in (x1..=x2) and a[1] in (y1..=y2)
+}
+
+
+let p1, p2 = 0, 0;
+for r in coords.combinations(2) {
+	p1 max= area(r[0], r[1]);
+}
+
+let rects = [];
+let cl = coords.len;
+
+for idx in 0..cl {
+	let cur = coords[idx];
+	let nex = coords[(idx + 1) %% cl];
+	let nnn = coords[(idx + 2) %% cl];
+
+	// try one straight line option
+
+	// if nex.left_of(cur) { print(idx, "LEFT"); }
+	// if nex.right_of(cur) { print(idx, "RIGHT"); }
+	// if nex.south_of(cur) { print(idx, "SOUTH"); }
+	// if nex.north_of(cur) { print(idx, "NORTH"); }
+
+	// p2 max= area(cur, nex);
+
+	if lookup.keys.any(fn(other) => other.is_contained_in(cur, nnn)) {
+		print("rejecting ", cur, nnn);
+		continue;
+	}
+
+	if nex.north_of(cur) and nnn.right_of(nex) {
+		rects.push((cur, nnn));
+		p2 max= area(cur, nnn);
+	}
+
+	if nex.south_of(cur) and nnn.left_of(nex) {
+		rects.push((cur, nnn));
+		p2 max= area(cur, nnn);
+	}
+
+	if nex.left_of(cur) and nnn.north_of(nex) {
+		rects.push((cur, nnn));
+		p2 max= area(cur, nnn);
+	}
+
+	if nex.right_of(cur) and nnn.south_of(nex) {
+		rects.push((cur, nnn));
+		p2 max= area(cur, nnn);
+	}
+}
+
+for ((x1, y1), (x2, y2)) in coords.combinations(2) {
+	let fault = false;
+
+	for cc in coords {
+		if cc.is_contained_in([x1, y1], [x2, y2]) {
+			fault = true;
+			break;
+		}
+	}
+
+
+	if not fault {
+		let new = area([x1, y1], [x2, y2]);
+		if new > p2 { 
+			print("found new answer", new);
+		}
+		p2 max= new;
+	}
+}
+
+assert_eq(p1, 4743645488);
+
+assert_ne(p2, 190920160);
+assert_ne(p2, 113753500);
+assert_ne(p2, 4741096140);
+assert_ne(p2, 4649416800);
+// MAYBE      4743645488
+
+print(p1, p2);

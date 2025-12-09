@@ -62,7 +62,7 @@ for r in coords.combinations(2) {
 	p1 max= area(r[0], r[1]);
 }
 
-let rects = [];
+let outside = [];
 let cl = coords.len;
 
 for idx in 0..cl {
@@ -79,29 +79,26 @@ for idx in 0..cl {
 
 	// p2 max= area(cur, nex);
 
-	if lookup.keys.any(fn(other) => other.is_contained_in(cur, nnn)) {
-		print("rejecting ", cur, nnn);
-		continue;
+	// if lookup.keys.any(fn(other) => other.is_contained_in(cur, nnn)) {
+	// 	print("rejecting ", cur, nnn);
+	// 	continue;
+	// }
+
+
+	if nex.south_of(cur) and nnn.right_of(nex) {
+		outside.push([nex[0] + 1, nex[1] -1]);
 	}
 
-	if nex.north_of(cur) and nnn.right_of(nex) {
-		rects.push((cur, nnn));
-		p2 max= area(cur, nnn);
+	if nex.north_of(cur) and nnn.left_of(nex) {
+		outside.push([nex[0] -1, nex[1] + 1]);
 	}
 
-	if nex.south_of(cur) and nnn.left_of(nex) {
-		rects.push((cur, nnn));
-		p2 max= area(cur, nnn);
+	if nex.left_of(cur) and nnn.south_of(nex) {
+		outside.push([nex[0] + 1, nex[1] + 1]);
 	}
 
-	if nex.left_of(cur) and nnn.north_of(nex) {
-		rects.push((cur, nnn));
-		p2 max= area(cur, nnn);
-	}
-
-	if nex.right_of(cur) and nnn.south_of(nex) {
-		rects.push((cur, nnn));
-		p2 max= area(cur, nnn);
+	if nex.right_of(cur) and nnn.north_of(nex) {
+		outside.push([nex[0] - 1, nex[0] - 1]);
 	}
 }
 
@@ -109,6 +106,13 @@ for ((x1, y1), (x2, y2)) in coords.combinations(2) {
 	let fault = false;
 
 	for cc in coords {
+		if cc.is_contained_in([x1, y1], [x2, y2]) {
+			fault = true;
+			break;
+		}
+	}
+
+	for cc in outside {
 		if cc.is_contained_in([x1, y1], [x2, y2]) {
 			fault = true;
 			break;
@@ -131,6 +135,7 @@ assert_ne(p2, 190920160);
 assert_ne(p2, 113753500);
 assert_ne(p2, 4741096140);
 assert_ne(p2, 4649416800);
+assert_ne(p2, 310046352);
 // MAYBE      4743645488
 
 print(p1, p2);

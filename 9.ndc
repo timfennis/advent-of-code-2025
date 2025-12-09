@@ -10,13 +10,17 @@ let input = read_file("input/2025/9.txt");
 
 let coords = input.lines.map(nums);
 let lookup = coords.set;
-let lookup2 = %{ a: b for (b, a) in coords.enumerate };
 
 fn area(x, y) {
 	let (x1, y1) = x;
 	let (x2, y2) = y;
 
 	(abs_diff(x1, x2) + 1) * (abs_diff(y1, y2) + 1)
+}
+
+let p1, p2 = 0, 0;
+for r in coords.combinations(2) {
+	p1 max= area(r[0], r[1]);
 }
 
 fn left_of(a, b) {
@@ -35,7 +39,7 @@ fn south_of(a, b) {
 	a[1] > b[1]
 }
 
-fn is_contained_in(a, r1, r2) {
+fn is_contained(a, r1, r2) {
 	let x1, x2 = min(r1[0], r2[0]), max(r1[0], r2[0]);
 	let y1, y2 = min(r1[1], r2[1]), max(r1[1], r2[1]);
 
@@ -49,6 +53,12 @@ fn is_contained_in(a, r1, r2) {
 	a[0] in (x1..=x2) and a[1] in (y1..=y2)
 }
 
+// fn isin(a, b, c) {
+// 	a[0] >= min(b[0],  c[0]) and a[0] <= max(b[0], c[0])
+// 	and 
+// 	a[1] >= min(b[1],  c[1]) and a[1] <= max(b[1], c[1])
+// }
+
 fn is_contained2(a, r1, r2) {
 	let x1, x2 = min(r1[0], r2[0]), max(r1[0], r2[0]);
 	let y1, y2 = min(r1[1], r2[1]), max(r1[1], r2[1]);
@@ -56,13 +66,29 @@ fn is_contained2(a, r1, r2) {
 	a[0] in (x1..=x2) and a[1] in (y1..=y2)
 }
 
+fn intersect(a, b) {
+	let [ax1, ay1], [ax2, ay2] = a;
+	let [bx1, by1], [bx2, by2] = b;
 
-let p1, p2 = 0, 0;
-for r in coords.combinations(2) {
-	p1 max= area(r[0], r[1]);
+	// A is vertical
+	// B is horizontal
+	if ax1 == ax2 and by1 == by2 { 
+		return by1 in (min(ay1,ay2)..=max(ay1,ay2)) and min(bx1, bx2) < ax1 and max(bx1, bx2) > ax1;
+	} 
+	// A is horizontal
+	// B is vertical
+	else if ay1 == ay2 and bx1 == bx2 { 
+		return bx1 in (min(ax1,ax2)..=max(ax1,ax2)) and min(by1, by2) < ay1 and max(by1, by2) > ay1;
+	}
+	// This function should only compare lines that are under a 90 degree angle	
+	else {
+		assert(false, "Degen");
+	}
 }
 
 let outside = [];
+let h_edges = [];
+let v_edges = [];
 let cl = coords.len;
 
 for idx in 0..cl {
@@ -70,72 +96,71 @@ for idx in 0..cl {
 	let nex = coords[(idx + 1) %% cl];
 	let nnn = coords[(idx + 2) %% cl];
 
-	// try one straight line option
-
-	// if nex.left_of(cur) { print(idx, "LEFT"); }
-	// if nex.right_of(cur) { print(idx, "RIGHT"); }
-	// if nex.south_of(cur) { print(idx, "SOUTH"); }
-	// if nex.north_of(cur) { print(idx, "NORTH"); }
-
-	// p2 max= area(cur, nex);
-
-	// if lookup.keys.any(fn(other) => other.is_contained_in(cur, nnn)) {
-	// 	print("rejecting ", cur, nnn);
-	// 	continue;
-	// }
-
+	if nex.south_of(cur) or nex.north_of(cur) {
+		v_edges.push((cur, nex));
+	} else if nex.left_of(cur) or nex.right_of(cur) {
+		h_edges.push((cur, nex));
+	}
 
 	if nex.south_of(cur) and nnn.right_of(nex) {
-		outside.push([nex[0] + 1, nex[1] -1]);
-	}
-
-	if nex.north_of(cur) and nnn.left_of(nex) {
+		// print("1");
+		outside.push([nex[0] + 1, nex[1] - 1]);
+	} else if nex.north_of(cur) and nnn.left_of(nex) {
+		// print("2");
 		outside.push([nex[0] -1, nex[1] + 1]);
-	}
-
-	if nex.left_of(cur) and nnn.south_of(nex) {
+	} else if nex.left_of(cur) and nnn.south_of(nex) {
+		// print("3");
 		outside.push([nex[0] + 1, nex[1] + 1]);
+	} else if nex.right_of(cur) and nnn.north_of(nex) {
+		// print("4");
+		outside.push([nex[0] - 1, nex[1] - 1]);
+	} else if nex.north_of(cur) and nnn.right_of(nex) {
+		// print("5");
+		outside.push([nex[0] - 1, nex[1] - 1]);
+	} else if nex.south_of(cur) and nnn.left_of(nex) {
+		// print("6");
+		outside.push([nex[0] + 1, nex[1] + 1]);
+	} else if nex.left_of(cur) and nnn.north_of(nex) {
+		// print("7");
+		outside.push([nex[0] - 1, nex[1] + 1]);
+	} else if nex.right_of(cur) and nnn.south_of(nex) {
+		outside.push([nex[0] + 1, nex[1] - 1]);
+	} else {
+		assert(false);
 	}
 
-	if nex.right_of(cur) and nnn.north_of(nex) {
-		outside.push([nex[0] - 1, nex[0] - 1]);
-	}
+
+	// print(cur, nex, nnn, outside[-1]);
 }
 
 for ((x1, y1), (x2, y2)) in coords.combinations(2) {
-	let fault = false;
 
-	for cc in coords {
-		if cc.is_contained_in([x1, y1], [x2, y2]) {
-			fault = true;
-			break;
+	let new = area([x1, y1], [x2, y2]);
+
+
+	if new > p2 {
+
+		// let fault = false;
+		let fault = outside.any(fn(o) => o.is_contained2([x1, y1], [x2, y2]));
+		let hseg = [
+			[[x1, y1], [x2, y1]],
+			[[x1, y2], [x2, y2]]
+		];
+		let vseg = [
+			[[x1, y1], [x1, y2]],
+			[[x2, y1], [x2, y2]]
+		];
+
+		fault |= v_edges.any(fn(vv) => vv.intersect(hseg[0]) and vv.intersect(hseg[1]));
+		fault |= h_edges.any(fn(vv) => vv.intersect(vseg[0]) and vv.intersect(vseg[1]));
+
+		if not fault {
+			p2 max= new;
 		}
-	}
-
-	for cc in outside {
-		if cc.is_contained_in([x1, y1], [x2, y2]) {
-			fault = true;
-			break;
-		}
-	}
-
-
-	if not fault {
-		let new = area([x1, y1], [x2, y2]);
-		if new > p2 { 
-			print("found new answer", new);
-		}
-		p2 max= new;
 	}
 }
 
-assert_eq(p1, 4743645488);
-
-assert_ne(p2, 190920160);
-assert_ne(p2, 113753500);
-assert_ne(p2, 4741096140);
-assert_ne(p2, 4649416800);
-assert_ne(p2, 310046352);
-// MAYBE      4743645488
+assert_eq(p1, 4_743_645_488);
+assert_eq(p2, 1_529_011_204); 
 
 print(p1, p2);

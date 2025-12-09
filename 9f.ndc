@@ -1,0 +1,49 @@
+let input = read_file("input/2025/9.txt").lines.map(fn(l) => l.split(",").map(int)).map(fn(x) => (x[0], x[1]));
+
+
+let xs = %{ n: i for i, n in input.map(first).sorted.enumerate };
+let ys = %{ n: i for i, n in input.map(last).sorted.enumerate };
+
+let grid = [ [ false for _ in 0..=xs.len ] for _ in 0..=ys.len() ];
+
+fn invert(m) => %{value: key for key, value in m};
+fn lookup(p) => (xs[p[0]], ys[p[1]]);
+fn sign(n) => if n == 0 { 0 } else if n > 0 { 1 } else { -1 };
+
+print("MAXXX", xs.values.max, ys.values.max);
+
+let last_dir = ();
+for (a, b) in input.circular_tuple_windows {
+    let aaa = lookup(a);
+    let bbb = lookup(b);
+    print(aaa, bbb);
+    let new_dir = lookup(b) - lookup(a);
+
+    if last_dir != () {
+        let lx, ly = last_dir;
+        let nx, ny = new_dir;
+
+        if (sign(lx) == sign(ny)) or (sign(ly) > 0 and sign(nx) < 0) or (sign(ly) < 0 and sign(nx) > 0) {
+            for xx in aaa[0]..=bbb[0], yy in aaa[1]..=bbb[1] {
+                print(yy, xx);
+                grid[yy][xx] = true;
+            }
+        }
+    }
+
+    last_dir = new_dir;
+}
+
+// let buf = "";
+// for r in 0..ys.len {
+//     for c in 0..xs.len {
+//         buf <>= if grid[r][c] { "#" } else { "." };
+//     }
+//     buf <>= "\n";
+// }
+// print(buf);
+
+// for (a, b) in input.combinations(2) {
+//     print(lookup(a), lookup(b));
+//     break;
+// }

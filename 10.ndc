@@ -15,29 +15,31 @@ fn flip(s, i) {
 	return s;
 }
 
+fn avg(l) => l.sum / float(l.len)
+fn score(l) => (l.max - l.min)
+
 fn solve(target, groups) {
-	let q = Deque();
-	q.push_back((target.map(fn(x) => ".").join(""), 0));
+	let q = MinHeap();
+	q.push((0, score(target), deepcopy(target)));
 
 	let seen = %{};
 
-	while not q.is_empty() {
-		let cur, steps = q.pop_front();
-
-		if cur == target {
+	while true {
+		let steps, _, cur = q.pop();
+		print(cur, steps, q.len());
+		if cur.sum == 0 {
 			return steps;
 		}
 
 		for option in groups {
 			let new = deepcopy(cur);
 			for n in option {
-				new = flip(new, n );
+				new[n] -= 1;
 			}
 
-			if new not in seen {
-				// print(new);
-				q.push_back((new, steps + 1));
-				seen.insert(new);
+			if new.all(fn(x) => x > 0 ) and (new not in seen or seen[new] > (steps + 1)) {
+				q.push((steps + 1, score(new), new));
+				seen[new] = steps + 1;
 			}
 		}
 	}
@@ -60,26 +62,57 @@ pure fn solve2dp(target, groups) {
 		return 0;
 	}
 
-	let best = Inf;
+	let hi_idx = target.locate(target.max);
 
-
-	for option in groups{
+	for option in groups.filter(fn(g) => g.contains(hi_idx)) {
 		let next = deepcopy(target);
 		for n in option {
 			next[n] -= 1;
 		}
 
 		if next.all(fn(x) => x >= 0) {
-			// print(next);
-			best min= 1 + solve2dp(next, groups);
+			print(hi_idx, next, next.sum, option);
+			let ans = 1 + solve2dp(next, groups);
+			if ans < Inf {
+				return ans;
+			}
 		} 
 	}
 
-	return best;
+	return Inf;
 }
 
 fn solve2(target, groups) {
 	return solve2dp(target, groups);
+}
+
+pure fn solve3(target, groups) {
+
+	print(target, groups.len);
+	if target.sum == 0 {
+		return 0;
+	}
+
+	let best = Inf;
+	for group in groups {
+		let values_in_group = target.enumerate.filter(fn(x) => x[0] in group).map(fn(x) => x[1]);
+		let limit = values_in_group.min;
+
+		while limit > 0 {
+			let next = deepcopy(target);
+			for n in group {
+				next[n] -= limit;
+			}
+			let ans = limit + solve3(next, groups[1..]);
+			if ans < Inf {
+				return ans;
+			}
+
+			limit -= 1;
+		}
+	}
+
+	return best;
 }
 
 for line in input.lines {
@@ -89,9 +122,9 @@ for line in input.lines {
 
 	groups map= nums;
 
-	groups.sort_by(fn(x, y) => x.len >=< y.len);
+	groups.sort_by(fn(x, y) => x.len <=> y.len);
 
-	let ans = solve2(joltage, groups);
+	let ans = solve3(joltage, groups);
 	print("PATTERN",target, joltage, ans);
 	p2 += ans;
 }

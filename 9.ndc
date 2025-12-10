@@ -151,8 +151,8 @@ for ((x1, y1), (x2, y2)) in coords.combinations(2) {
 			[[x2, y1], [x2, y2]]
 		];
 
-		fault |= v_edges.any(fn(vv) => vv.intersect(hseg[0]) and vv.intersect(hseg[1]));
-		fault |= h_edges.any(fn(vv) => vv.intersect(vseg[0]) and vv.intersect(vseg[1]));
+		fault = fault or v_edges.any(fn(vv) => vv.intersect(hseg[0]) and vv.intersect(hseg[1]));
+		fault = fault or h_edges.any(fn(vv) => vv.intersect(vseg[0]) and vv.intersect(vseg[1]));
 
 		if not fault {
 			p2 max= new;

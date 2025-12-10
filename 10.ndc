@@ -1,0 +1,103 @@
+let input = read_file("input/2025/10.txt");
+// let input = "[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
+// [...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
+// [.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}";
+
+let p1, p2 = 0, 0;
+
+fn flip(s, i) {
+	let s = deepcopy(s);
+	if s[i] == "." {
+		s[i] = "#";
+	} else {
+		s[i] = ".";
+	}
+	return s;
+}
+
+fn solve(target, groups) {
+	let q = Deque();
+	q.push_back((target.map(fn(x) => ".").join(""), 0));
+
+	let seen = %{};
+
+	while not q.is_empty() {
+		let cur, steps = q.pop_front();
+
+		if cur == target {
+			return steps;
+		}
+
+		for option in groups {
+			let new = deepcopy(cur);
+			for n in option {
+				new = flip(new, n );
+			}
+
+			if new not in seen {
+				// print(new);
+				q.push_back((new, steps + 1));
+				seen.insert(new);
+			}
+		}
+	}
+
+	return Inf;
+}
+
+fn apply(tar, group) {
+	let x = deepcopy(tar);
+	for n in group {
+		x[n] -= 1;
+	}
+
+	return x;
+}
+
+pure fn solve2dp(target, groups) {
+
+	if target.sum == 0 {
+		return 0;
+	}
+
+	let best = Inf;
+
+
+	for option in groups{
+		let next = deepcopy(target);
+		for n in option {
+			next[n] -= 1;
+		}
+
+		if next.all(fn(x) => x >= 0) {
+			// print(next);
+			best min= 1 + solve2dp(next, groups);
+		} 
+	}
+
+	return best;
+}
+
+fn solve2(target, groups) {
+	return solve2dp(target, groups);
+}
+
+for line in input.lines {
+	let groups = line.split(" ");
+	let target = groups.remove(0)[1..-1];
+	let joltage = groups.pop().nums;
+
+	groups map= nums;
+
+	groups.sort_by(fn(x, y) => x.len >=< y.len);
+
+	let ans = solve2(joltage, groups);
+	print("PATTERN",target, joltage, ans);
+	p2 += ans;
+}
+
+
+
+
+
+print("Part 1:", p1, "\nPart2:", p2);

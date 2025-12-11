@@ -1,0 +1,12 @@
+let graph = %{ w[0][0..-1]: w[1..] for w in read_file("input/2025/11.txt").lines.map(words) };
+
+pure fn solve(cur, dac, fft) {
+	if cur == "out" {
+		return int(dac and fft);
+	}
+
+	return [solve(next, dac or cur == "dac", fft or cur == "fft") for next in graph[cur]].sum;
+}
+
+print("Part 1:", solve("you", true, true));
+print("Part 2:", solve("svr", false, false));

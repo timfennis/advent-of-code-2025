@@ -1,0 +1,63 @@
+let input = read_file("input/2025/11.txt");
+// let input = "svr: aaa bbb
+// aaa: fft
+// fft: ccc
+// bbb: tty
+// tty: ccc
+// ccc: ddd eee
+// ddd: hub
+// hub: fff
+// eee: dac
+// dac: fff
+// fff: ggg hhh
+// ggg: out
+// hhh: out";
+
+let p1, p2 = 0, 0;
+
+let graph = %{};
+
+for line in input.lines {
+	let from, to = line.split_once(": ");
+	let to = to.split(" ");
+
+	graph[from.trim] = to.map(trim);
+}
+
+print(graph);
+
+let queue = Deque();
+let seen = %{};
+
+queue.push_back(("svr", []));
+
+fn adjacencies(cur) {
+	graph[cur]
+}
+
+let out = [];
+while not queue.is_empty() {
+	let cur, path = queue.pop_front();
+	print(queue.len());
+	if cur == "out" {
+		out.push(path);
+		p1 += 1;	
+	} else {
+		for next in adjacencies(cur), if next not in path {
+			let new_path = path ++ [next];
+			if new_path not in seen {
+				seen.insert(new_path);
+				queue.push_back((next, new_path));
+			}
+		}
+	}
+}
+
+for path in out {
+	if "dac" in path and "fft" in path {
+		p2 += 1;
+	}
+}
+
+
+print("Part 1", p1, "\nPart 2:", p2);
